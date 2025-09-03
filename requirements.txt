@@ -1,0 +1,8 @@
+boto3
+streamlit
+opensearch-py
+pandas
+python-dotenv
+requests-aws4auth
+dotenv
+tiktoken
