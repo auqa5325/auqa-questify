@@ -118,7 +118,18 @@ st.markdown(
 
 prompt_template = st.text_area(
     "Edit Question Generation Prompt:",
-    "Generate exam-style questions based on the retrieved context and query."
+    '''Generate exam-style questions based on the retrieved context and query.
+    Expected Output (strict JSON):
+    [
+      {{
+    "question": "...",
+    "difficulty": "Easy|Medium|Hard",
+    "blooms_level": "Remember|Understand|Apply|Analyze|Evaluate|Create"
+    "context":"Where the answer for the question lies"
+    "page_no":"For the answer of question"
+      }}
+    ]'''
+    
 )
 
 # --- NEW: difficulty UI (doesn't change generation logic — only enriches the prompt) ---
@@ -137,19 +148,32 @@ st.caption(f"Normalized ratios → Easy={_easy:.2f}, Medium={_medium:.2f}, Hard=
 
 # Guidance block to append to the user's prompt
 ratio_guidance = f"""
----
-User Requirements:
-- Total Questions: {no}
-- Difficulty Ratio (normalized): Easy={_easy:.2f}, Medium={_medium:.2f}, Hard={_hard:.2f}
+You are an **AI assistant** specialized in **automatic question generation**.
+Your task is to create insightful and meaningful questions based on the provided **context** and **user query**.
 
-Expected Output (strict JSON):
-[
-  {{
-    "question": "...",
-    "difficulty": "Easy|Medium|Hard",
-    "blooms_level": "Remember|Understand|Apply|Analyze|Evaluate|Create"
-  }}
-]
+---
+
+### **Goals**
+1. Generate **{no} questions** in total, distributed based on the given difficulty ratio:
+2. Ensure the ratio is **strictly followed**. If the sum of ratios is not exactly 1.0, adjust proportionally.
+3. Classify each question by:
+   - **Difficulty Level** → Easy / Medium / Hard
+   - **Bloom's Taxonomy Level** → Choose one of:
+        * Remember
+        * Understand
+        * Apply
+        * Analyze
+        * Evaluate
+        * Create
+
+---
+
+**User Requirements**:
+- Total Questions: {no}
+- Difficulty Ratio: Easy={_easy}, Medium={_medium}, Hard={_hard}
+
+
+
 
 Rules:
 - Do NOT copy sentences directly from the context.
