@@ -2,10 +2,26 @@ import os, json, pathlib
 import boto3
 import pandas as pd
 import streamlit as st
-import tiktoken
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 from dotenv import load_dotenv
+from bedrockModels import count_tokens, build_request
+
+# --- Local helpers ---
+def truncate_to_limit(text: str, max_tokens: int, buffer: int = 2500):
+    import tiktoken
+    enc = tiktoken.get_encoding("cl100k_base")
+    tokens = enc.encode(text)
+    if len(tokens) > (max_tokens - buffer):
+        return enc.decode(tokens[: max_tokens - buffer]), True
+    return text, False
+
+
+def normalize_ratios(e: float, m: float, h: float):
+    s = e + m + h
+    if s <= 0:
+        return 1/3, 1/3, 1/3
+    return e/s, m/s, h/s
 
 # --- Load environment variables ---
 load_dotenv()
@@ -41,65 +57,12 @@ client = OpenSearch(
 
 bedrock = session.client("bedrock-runtime", region_name=region)
 
-# --- Token helpers ---
-def count_tokens(text: str) -> int:
-    try:
-        enc = tiktoken.get_encoding("cl100k_base")
-        return len(enc.encode(text))
-    except Exception:
-        return len(text.split())
-
-
-def truncate_to_limit(text: str, max_tokens: int, buffer: int = 2500):
-    enc = tiktoken.get_encoding("cl100k_base")
-    tokens = enc.encode(text)
-    if len(tokens) > (max_tokens - buffer):
-        return enc.decode(tokens[: max_tokens - buffer]), True
-    return text, False
-
-
-# --- NEW: difficulty helpers (ratios) ---
-def normalize_ratios(e: float, m: float, h: float):
-    s = e + m + h
-    if s <= 0:
-        return 1/3, 1/3, 1/3
-    return e/s, m/s, h/s
-
-
-# --- Helper to build request ---
-def build_request(model_id, model_name, prompt, max_gen_len):
-    if model_id.startswith("amazon.nova"):
-        return {
-            "messages": [{"role": "user", "content": [{"text": prompt}]}],
-            "inferenceConfig": {"maxTokens": max_gen_len, "temperature": 0.5, "topP": 0.9}
-        }
-    elif "anthropic" in model_id or "claude" in model_name.lower():
-        return {
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": max_gen_len,
-            "messages": [
-                {"role": "user", "content": [{"type": "text", "text": prompt}]}
-            ]
-        }
-    elif "llama" in model_id:
-        formatted_prompt = f"""
-<|begin_of_text|><|start_header_id|>user<|end_header_id|>
-{prompt}
-<|eot_id|>
-<|start_header_id|>assistant<|end_header_id|>
-"""
-        return {"prompt": formatted_prompt, "max_gen_len": max_gen_len, "temperature": 0.5}
-    elif "mistral" in model_id:
-        formatted_prompt = f"<s>[INST] {prompt} [/INST]"
-        return {"prompt": formatted_prompt, "max_tokens": max_gen_len, "temperature": 0.5}
-    else:
-        return {"prompt": prompt, "max_tokens": max_gen_len, "temperature": 0.5}
-
 # --- Streamlit UI ---
 st.title("🔎 Question Generation")
 
 query = st.text_input("Enter Search Query:")
 focus_topic = st.text_input("Focus Topic (optional):")
+course_id = st.text_input("Course ID (filter results by course)")
 ratio = st.slider("Hybrid Search Ratio (BM25 vs Vector)", 0.0, 1.0, 0.5)
 num_hits = st.slider("Number of Search Hits (BM25 + Vector)", 1, 20, 3)
 max_gen_len = st.slider("Max Generation Length (tokens)", 50, 4096, 512, step=50)
@@ -127,8 +90,8 @@ prompt_template = st.text_area(
     "blooms_level": "Remember|Understand|Apply|Analyze|Evaluate|Create"
     "context":"Where the answer for the question lies"
     "page_no":"For the answer of question"
-      }}
-    ]'''
+      }}]
+'''
     
 )
 
@@ -147,7 +110,7 @@ _easy, _medium, _hard = normalize_ratios(easy_raw, medium_raw, hard_raw)
 st.caption(f"Normalized ratios → Easy={_easy:.2f}, Medium={_medium:.2f}, Hard={_hard:.2f}")
 
 # Guidance block to append to the user's prompt
-ratio_guidance = f"""
+guidance = f"""
 You are an **AI assistant** specialized in **automatic question generation**.
 Your task is to create insightful and meaningful questions based on the provided **context** and **user query**.
 
@@ -174,7 +137,6 @@ Your task is to create insightful and meaningful questions based on the provided
 
 
 
-
 Rules:
 - Do NOT copy sentences directly from the context.
 - Make questions conceptual; include scenario-based items where suitable.
@@ -182,26 +144,44 @@ Rules:
 """.strip()
 
 if query:
-    # --- BM25 search ---
-    bm25_resp = client.search(
-        index=index_name,
-        body={"size": num_hits, "query": {"match": {"chunk_text": query}}}
-    )
+    # --- BM25 search (with optional course_id filter) ---
+    if course_id:
+        bm25_query = {
+            "size": num_hits,
+            "query": {
+                "bool": {
+                    "filter": [{"term": {"course_id": course_id}}],
+                    "must": {"match": {"chunk_text": query}}
+                }
+            }
+        }
+    else:
+        bm25_query = {"size": num_hits, "query": {"match": {"chunk_text": query}}}
+
+    bm25_resp = client.search(index=index_name, body=bm25_query)
     bm25_docs = [(hit["_id"], hit["_source"]["chunk_text"], hit["_source"].get("page_range", "?"))
                  for hit in bm25_resp["hits"]["hits"]]
 
-    # --- Vector search ---
+    # --- Vector search (with optional course_id filter) ---
     embedding_body = json.dumps({"inputText": query})
     resp = bedrock.invoke_model(modelId="amazon.titan-embed-text-v2:0", body=embedding_body)
     emb = json.loads(resp["body"].read())["embedding"]
 
-    vector_resp = client.search(
-        index=index_name,
-        body={"size": num_hits, "query": {"knn": {"vector_field": {"vector": emb, "k": num_hits}}}}
-    )
+    if course_id:
+        vector_query = {
+            "size": num_hits,
+            "query": {
+                "bool": {
+                    "filter": [{"term": {"course_id": course_id}}],
+                    "must": {"knn": {"vector_field": {"vector": emb, "k": num_hits}}}
+                }
+            }
+        }
+    else:
+        vector_query = {"size": num_hits, "query": {"knn": {"vector_field": {"vector": emb, "k": num_hits}}}}
+
+    vector_resp = client.search(index=index_name, body=vector_query)
     vector_docs = [(hit["_id"], hit["_source"]["chunk_text"], hit["_source"].get("page_range", "?"))
-                   for hit in vector_resp["hits"]["_hits"]] if "_hits" in vector_resp.get("hits", {}) else [
-                   (hit["_id"], hit["_source"]["chunk_text"], hit["_source"].get("page_range", "?"))
                    for hit in vector_resp.get("hits", {}).get("hits", [])]
 
     # --- Weighted merge & dedup by doc_id ---
@@ -229,7 +209,7 @@ if query:
         f"Query: {query}\n"
         f"Focus: {focus_topic}\n"
         f"Context: {context}\n\n"
-        f"{ratio_guidance}"
+        f"{guidance}"
     )
     token_count = count_tokens(preview_prompt)
     st.info(f"📏 Full Prompt Length: **{token_count} tokens** (limit {model_config['max_tokens']})")
@@ -244,18 +224,16 @@ if st.button("Generate Questions"):
             st.warning(f"⚠️ Prompt truncated to fit {model_config['max_tokens']} tokens.")
 
         model_id = model_config["id"]
-        body = build_request(model_id, selected_model, prompt, max_gen_len)
-
-        # --- Call Bedrock ---
+        # For amazon.nova family use converse API (returns structured output), else use invoke_model
         if model_id.startswith("amazon.nova"):
-            resp = bedrock.converse(
-                modelId=model_id,
-                messages=body["messages"],
-                inferenceConfig=body["inferenceConfig"]
-            )
+            # Build a simple conversation and call converse
+            conversation = [{"role": "user", "content": [{"text": prompt}]}]
+            resp = bedrock.converse(modelId=model_id, messages=conversation,
+                                     inferenceConfig={"maxTokens": max_gen_len, "temperature": 0.5, "topP": 0.9})
             generated_text = resp["output"]["message"]["content"][0]["text"]
             usage = resp.get("usage", {})
         else:
+            body = build_request(model_id, selected_model, prompt, max_gen_len)
             resp = bedrock.invoke_model(modelId=model_id, body=json.dumps(body))
             model_response = json.loads(resp["body"].read())
             usage = model_response.get("usage", {})
@@ -263,9 +241,9 @@ if st.button("Generate Questions"):
             if "anthropic" in model_id or "claude" in selected_model.lower():
                 generated_text = model_response["content"][0]["text"]
             elif "llama" in model_id:
-                generated_text = model_response["generation"]
+                generated_text = model_response.get("generation") or str(model_response)
             elif "mistral" in model_id:
-                generated_text = model_response["outputs"][0]["text"]
+                generated_text = model_response.get("outputs", [{"text": str(model_response)}])[0].get("text")
             else:
                 generated_text = str(model_response)
 
@@ -292,5 +270,3 @@ if st.button("Generate Questions"):
         st.metric("Input Cost", f"${input_cost:.4f}{' (approx)' if approx else ''}")
         st.metric("Output Cost", f"${output_cost:.4f}{' (approx)' if approx else ''}")
         st.metric("Total Cost", f"${total_cost:.4f}{' (approx)' if approx else ''}")
-
-        
