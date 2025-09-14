@@ -266,7 +266,7 @@ Produce the JSON now.
         model_id = model_config["id"]
         model_name = model_config["name"]
         # choose an output token limit conservatively (bounded by model max)
-        max_gen_len = min(2048, int(model_config.get("max_tokens", 2048)))
+        max_gen_len = min(2048, int(model_config.get("max_tokens", 8000)))
 
         body = build_request(model_id, model_name, user_message, max_gen_len)
 
