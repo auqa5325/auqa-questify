@@ -6,3 +6,6 @@ python-dotenv
 requests-aws4auth
 dotenv
 tiktoken
+markdown2
+fpdf
+docx
