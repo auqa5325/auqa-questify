@@ -110,9 +110,9 @@ s3_key = st.text_input("S3 PDF Key (syllabus)", "syllabus/CS23501.Syllabus.pdf")
 
 st.markdown("### Overall Difficulty Ratio (applies to PART A and PART B)")
 col1, col2, col3 = st.columns(3)
-_easy = col1.number_input("Easy ratio", 0.0, 1.0, 0.34, 0.01)
-_medium = col2.number_input("Medium ratio", 0.0, 1.0, 0.33, 0.01)
-_hard = col3.number_input("Hard ratio", 0.0, 1.0, 0.33, 0.01)
+_easy = col1.number_input("Easy ratio", 0.0, 1.0, 0.50, 0.01)
+_medium = col2.number_input("Medium ratio", 0.0, 1.0, 0.50, 0.01)
+_hard = col3.number_input("Hard ratio", 0.0, 1.0, 0, 0.01)
 _e, _m, _h = normalize_ratios(_easy, _medium, _hard)
 
 # Models config
