@@ -112,7 +112,7 @@ if st.button("Ingest PDF & Extract Syllabus"):
 
     full_text = "\n\n".join("\n".join(lines) for lines in [page_texts[p] for p in sorted(page_texts.keys())])
 
-    template = """
+    template ="""
 INSTRUCTION:
 You are an automated assistant specialized in extracting a course outline.
 
