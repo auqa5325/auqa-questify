@@ -8,4 +8,4 @@ dotenv
 tiktoken
 markdown2
 fpdf
-docx
+pyhton-docx
