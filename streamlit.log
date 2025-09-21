@@ -52,3 +52,449 @@ Traceback (most recent call last):
              ~~~~~~~~~~^^^^^^^^^^^^^^
   File "<frozen os>", line 685, in __getitem__
 KeyError: 'AWS_REGION'
+2025-09-20 21:47:31.706 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 21:47:33.030 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 9, in <module>
+    import Q
+ModuleNotFoundError: No module named 'Q'
+2025-09-20 21:47:34.765 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 9, in <module>
+    import QPparser
+  File "/Users/vijaygk/AUQA/auqa-questify/QPparser.py", line 6, in <module>
+    from fpdf import FPDF
+ModuleNotFoundError: No module named 'fpdf'
+2025-09-20 21:47:40.505 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 9, in <module>
+    import QPparser
+  File "/Users/vijaygk/AUQA/auqa-questify/QPparser.py", line 6, in <module>
+    from fpdf import FPDF
+ModuleNotFoundError: No module named 'fpdf'
+2025-09-20 21:47:41.949 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 9, in <module>
+    import QPparser
+  File "/Users/vijaygk/AUQA/auqa-questify/QPparser.py", line 6, in <module>
+    from fpdf import FPDF
+ModuleNotFoundError: No module named 'fpdf'
+2025-09-20 21:47:49.568 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 9, in <module>
+    import QPparser
+  File "/Users/vijaygk/AUQA/auqa-questify/QPparser.py", line 6, in <module>
+    from fpdf import FPDF
+ModuleNotFoundError: No module named 'fpdf'
+2025-09-20 21:48:05.959 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 21:48:07.320 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 21:48:19.543 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 9, in <module>
+    from QPparser import normalize_raw_block
+  File "/Users/vijaygk/AUQA/auqa-questify/QPparser.py", line 6, in <module>
+    from fpdf import FPDF
+ModuleNotFoundError: No module named 'fpdf'
+2025-09-20 21:49:01.199 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 9, in <module>
+    from QPparser import normalize_raw_block
+  File "/Users/vijaygk/AUQA/auqa-questify/QPparser.py", line 69, in <module>
+    questions = normalize_raw_block(raw_input_block)
+                                    ^^^^^^^^^^^^^^^
+NameError: name 'raw_input_block' is not defined
+2025-09-20 21:53:55.353 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 468, in <module>
+    normalize_raw_block(final_paper)
+  File "/Users/vijaygk/AUQA/auqa-questify/QPparser.py", line 19, in normalize_raw_block
+    s = raw.strip()
+        ^^^^^^^^^
+AttributeError: 'list' object has no attribute 'strip'
+2025-09-20 22:02:22.378 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 584, in <module>
+    paths = export_final_paper(st.session_state.final_paper, out_dir_path='output')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 491, in export_final_paper
+    out_dir = Path(out_dir_path)
+              ^^^^
+NameError: name 'Path' is not defined. Did you mean: 'math'?
+2025-09-20 22:26:49.129 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 22:27:25.972 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 22:39:58.677 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 21, in <module>
+    from docx import Document
+ModuleNotFoundError: No module named 'docx'
+2025-09-20 22:40:27.995 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 21, in <module>
+    from docx import Document
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/docx.py", line 30, in <module>
+    from exceptions import PendingDeprecationWarning
+ModuleNotFoundError: No module named 'exceptions'
+2025-09-20 23:01:07.460 Thread 'MainThread': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:14.567 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:14.567 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:14.773 Thread 'ThreadPoolExecutor-1_3': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:14.774 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:14.774 Thread 'ThreadPoolExecutor-1_3': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:14.774 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:15.246 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:15.246 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:15.927 Thread 'ThreadPoolExecutor-1_3': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:15.928 Thread 'ThreadPoolExecutor-1_3': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:16.017 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:16.022 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:16.191 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:16.191 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:16.836 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:16.836 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:16.918 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:16.919 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:17.755 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:17.756 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:17.880 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:17.880 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:18.734 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:18.735 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:18.876 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:18.877 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:20.059 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:20.061 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:20.114 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:20.114 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:21.361 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:21.361 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:21.397 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:21.398 Thread 'ThreadPoolExecutor-1_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:22.429 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:54:22.429 Thread 'ThreadPoolExecutor-1_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:26.398 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:26.398 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:26.537 Thread 'ThreadPoolExecutor-4_3': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:26.537 Thread 'ThreadPoolExecutor-4_3': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:26.548 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:26.548 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:27.046 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:27.046 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:27.360 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:27.360 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:27.941 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:27.941 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:28.238 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:28.239 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:29.155 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:29.155 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:29.708 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:29.708 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:30.407 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:30.407 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:30.733 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:30.734 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:31.343 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:31.343 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:31.595 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:31.595 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:32.278 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:32.281 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:32.503 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:32.503 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:33.133 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:33.133 Thread 'ThreadPoolExecutor-4_2': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:33.392 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-20 23:56:33.393 Thread 'ThreadPoolExecutor-4_1': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-21 00:14:18.336 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py", line 536, in _make_request
+    response = conn.getresponse()
+               ^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connection.py", line 507, in getresponse
+    httplib_response = super().getresponse()
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/http/client.py", line 1411, in getresponse
+    response.begin()
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/http/client.py", line 324, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/http/client.py", line 285, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/socket.py", line 707, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/ssl.py", line 1249, in recv_into
+    return self.read(nbytes, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/ssl.py", line 1105, in read
+    return self._sslobj.read(len, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: The read operation timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/requests/adapters.py", line 667, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py", line 843, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/util/retry.py", line 474, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/util/util.py", line 39, in reraise
+    raise value
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py", line 789, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py", line 538, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py", line 369, in _raise_timeout
+    raise ReadTimeoutError(
+urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='search-test1-annauniv-pcx3f52wxykhpd4md6v4bjeqdy.ap-south-1.es.amazonaws.com', port=443): Read timed out. (read timeout=10)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/connection/http_requests.py", line 196, in perform_request
+    response = self.session.send(prepared_request, **send_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/requests/adapters.py", line 713, in send
+    raise ReadTimeout(e, request=request)
+requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='search-test1-annauniv-pcx3f52wxykhpd4md6v4bjeqdy.ap-south-1.es.amazonaws.com', port=443): Read timed out. (read timeout=10)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/1_Ingestion.py", line 198, in <module>
+    for ok, result in parallel_bulk(client, actions, thread_count=1, chunk_size=50):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/helpers/actions.py", line 485, in parallel_bulk
+    for result in pool.imap(
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/multiprocessing/pool.py", line 873, in next
+    raise value
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/multiprocessing/pool.py", line 125, in worker
+    result = (True, func(*args, **kwds))
+                    ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/helpers/actions.py", line 486, in <lambda>
+    lambda bulk_chunk: list(
+                       ^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/helpers/actions.py", line 272, in _process_bulk_chunk
+    yield from gen
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/helpers/actions.py", line 213, in _process_bulk_chunk_error
+    raise error
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/helpers/actions.py", line 256, in _process_bulk_chunk
+    resp = client.bulk(body="\n".join(bulk_actions) + "\n", *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/client/utils.py", line 176, in _wrapped
+    return func(*args, params=params, headers=headers, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/client/__init__.py", line 571, in bulk
+    return self.transport.perform_request(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/transport.py", line 457, in perform_request
+    raise e
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/transport.py", line 418, in perform_request
+    status, headers_response, data = connection.perform_request(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/connection/http_requests.py", line 213, in perform_request
+    raise ConnectionTimeout("TIMEOUT", str(e), e)
+opensearchpy.exceptions.ConnectionTimeout: ConnectionTimeout caused by - ReadTimeout(HTTPSConnectionPool(host='search-test1-annauniv-pcx3f52wxykhpd4md6v4bjeqdy.ap-south-1.es.amazonaws.com', port=443): Read timed out. (read timeout=10))
+2025-09-21 10:23:28.384 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py", line 536, in _make_request
+    response = conn.getresponse()
+               ^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connection.py", line 507, in getresponse
+    httplib_response = super().getresponse()
+                       ^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/http/client.py", line 1411, in getresponse
+    response.begin()
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/http/client.py", line 324, in begin
+    version, status, reason = self._read_status()
+                              ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/http/client.py", line 285, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/socket.py", line 707, in readinto
+    return self._sock.recv_into(b)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/ssl.py", line 1249, in recv_into
+    return self.read(nbytes, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/ssl.py", line 1105, in read
+    return self._sslobj.read(len, buffer)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TimeoutError: The read operation timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/requests/adapters.py", line 667, in send
+    resp = conn.urlopen(
+           ^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py", line 843, in urlopen
+    retries = retries.increment(
+              ^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/util/retry.py", line 474, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/util/util.py", line 39, in reraise
+    raise value
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py", line 789, in urlopen
+    response = self._make_request(
+               ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py", line 538, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/urllib3/connectionpool.py", line 369, in _raise_timeout
+    raise ReadTimeoutError(
+urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='search-test1-annauniv-pcx3f52wxykhpd4md6v4bjeqdy.ap-south-1.es.amazonaws.com', port=443): Read timed out. (read timeout=10)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/connection/http_requests.py", line 196, in perform_request
+    response = self.session.send(prepared_request, **send_kwargs)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/requests/sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/requests/adapters.py", line 713, in send
+    raise ReadTimeout(e, request=request)
+requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='search-test1-annauniv-pcx3f52wxykhpd4md6v4bjeqdy.ap-south-1.es.amazonaws.com', port=443): Read timed out. (read timeout=10)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/2_Generation.py", line 183, in <module>
+    vector_resp = client.search(index=index_name, body=vector_query)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/client/utils.py", line 176, in _wrapped
+    return func(*args, params=params, headers=headers, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/client/__init__.py", line 2466, in search
+    return self.transport.perform_request(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/transport.py", line 457, in perform_request
+    raise e
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/transport.py", line 418, in perform_request
+    status, headers_response, data = connection.perform_request(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/opensearchpy/connection/http_requests.py", line 213, in perform_request
+    raise ConnectionTimeout("TIMEOUT", str(e), e)
+opensearchpy.exceptions.ConnectionTimeout: ConnectionTimeout caused by - ReadTimeout(HTTPSConnectionPool(host='search-test1-annauniv-pcx3f52wxykhpd4md6v4bjeqdy.ap-south-1.es.amazonaws.com', port=443): Read timed out. (read timeout=10))
+2025-09-21 10:48:37.724 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 115, in <module>
+    _hard = col3.number_input("Hard ratio", 0.0, 1.0, 0, 0.01)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/metrics_util.py", line 410, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/elements/widgets/number_input.py", line 319, in number_input
+    return self._number_input(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/elements/widgets/number_input.py", line 393, in _number_input
+    raise StreamlitMixedNumericTypesError(value=value, min_value=min_value, max_value=max_value, step=step)
+streamlit.errors.StreamlitMixedNumericTypesError: All numerical arguments must be of the same type.
+`max_value` has float type.
+`step` has float type.
+2025-09-21 10:48:45.404 Uncaught app execution
+Traceback (most recent call last):
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/exec_code.py", line 121, in exec_func_with_error_handling
+    result = func()
+             ^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/scriptrunner/script_runner.py", line 593, in code_to_exec
+    exec(code, module.__dict__)
+  File "/Users/vijaygk/AUQA/auqa-questify/pages/5_QuestionPaper.py", line 115, in <module>
+    _hard = col3.number_input("Hard ratio", 0.0, 1.0, 0, 0.01)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/runtime/metrics_util.py", line 410, in wrapped_func
+    result = non_optional_func(*args, **kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/elements/widgets/number_input.py", line 319, in number_input
+    return self._number_input(
+           ^^^^^^^^^^^^^^^^^^^
+  File "/Library/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/streamlit/elements/widgets/number_input.py", line 393, in _number_input
+    raise StreamlitMixedNumericTypesError(value=value, min_value=min_value, max_value=max_value, step=step)
+streamlit.errors.StreamlitMixedNumericTypesError: All numerical arguments must be of the same type.
+`max_value` has float type.
+`step` has float type.
+2025-09-21 11:44:18.626 Thread 'ThreadPoolExecutor-10_0': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-21 11:44:18.627 Thread 'ThreadPoolExecutor-10_0': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-21 11:44:42.713 Thread 'ThreadPoolExecutor-13_0': missing ScriptRunContext! This warning can be ignored when running in bare mode.
+2025-09-21 11:44:42.714 Thread 'ThreadPoolExecutor-13_0': missing ScriptRunContext! This warning can be ignored when running in bare mode.
