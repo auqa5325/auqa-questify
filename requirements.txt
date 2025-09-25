@@ -8,4 +8,6 @@ dotenv
 tiktoken
 markdown2
 fpdf
-pyhton-docx
+docx
+weasyprint 
+ jinja2
