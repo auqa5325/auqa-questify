@@ -887,8 +887,7 @@ if "generated_qns" in st.session_state and st.session_state.generated_qns:
         "qn_matrix": qn_records,
         "part_summary":part_summary
     }
-    print("DEBUG keys:", sorted(exam_dict.keys()))
-    print("DEBUG part_summary:", exam_dict.get("part_summary"))
+   
 
 
     # ---------- UI: show and export ----------
