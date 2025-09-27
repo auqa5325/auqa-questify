@@ -32,10 +32,17 @@ awsauth = AWS4Auth(
     credentials.access_key, credentials.secret_key,
     region, "es", session_token=credentials.token
 )
-client = OpenSearch(hosts=[{"host": os_domain, "port": 443}],
-                    http_auth=awsauth,
-                    use_ssl=True, verify_certs=True,
-                    connection_class=RequestsHttpConnection)
+client = OpenSearch(
+    hosts=[{"host": os_domain, "port": 443}],
+    http_auth=awsauth,
+    use_ssl=True,
+    verify_certs=True,
+    connection_class=RequestsHttpConnection,
+    timeout=60,            # request timeout
+    max_retries=3,         # retry attempts
+    retry_on_timeout=True  # retry if timed out
+)
+
 
 s3 = boto3.client("s3", region_name=region)
 textract = boto3.client("textract", region_name=region)
@@ -580,10 +587,7 @@ def merge_and_dedupe(bm25_docs, vector_docs, take_top: int, bm25_take: int):
     return final
 
 if st.button("GENERATE QUESTION PAPER"):
-    client = OpenSearch(hosts=[{"host": os_domain, "port": 443}],
-                    http_auth=awsauth,
-                    use_ssl=True, verify_certs=True,
-                    connection_class=RequestsHttpConnection)
+   
     if "qn_matrix" not in st.session_state or st.session_state.qn_matrix.empty:
         st.error("No mapping found in st.session_state.qn_matrix — run Step 1.5 first.")
         st.stop()
