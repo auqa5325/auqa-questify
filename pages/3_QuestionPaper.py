@@ -250,7 +250,7 @@ with col0:
         st.info("No units selected — defaulting to all units.")
         selected_units = unit_values.copy()
 with col1:
-    marks_pattern = st.selectbox("Total exam marks", options=[100, 50], index=0)
+    marks_pattern = st.selectbox("Total exam marks", options=[100, 50, 26], index=0)
     
 
 # --- Part-wise inputs ------------------------------------------------------
@@ -887,9 +887,6 @@ if "generated_qns" in st.session_state and st.session_state.generated_qns:
         "qn_matrix": qn_records,
         "part_summary":part_summary
     }
-   
-
-
     # ---------- UI: show and export ----------
     #st.subheader("Generated exam JSON")
     #st.json(exam_dict)
