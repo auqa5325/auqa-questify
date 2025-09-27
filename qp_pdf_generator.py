@@ -43,30 +43,28 @@ def render_qp_pdf(data: dict, template_name: str = "template2.html", title: str 
 
     # Preview PDF inline
     #st.subheader("Preview")
-
+    with st.spinner("Rendering PDF with Playwright (Chromium)..."):
+                with sync_playwright() as p:
+                    browser = p.chromium.launch()  # add headless=True if needed
+                    page = browser.new_page()
+                    # Provide a base URL so relative links (css/img) resolve
+                    page.set_content(html_out, wait_until="networkidle")
+                    # Generate PDF bytes. adjust margin/format as needed
+                    pdf_bytes = page.pdf(format="A4", print_background=True)
+                    browser.close()
     
     if st.button("PDF Preview"):
-        with st.spinner("Rendering PDF with Playwright (Chromium)..."):
-            with sync_playwright() as p:
-                browser = p.chromium.launch()  # add headless=True if needed
-                page = browser.new_page()
-                # Provide a base URL so relative links (css/img) resolve
-                page.set_content(html_out, wait_until="networkidle")
-                # Generate PDF bytes. adjust margin/format as needed
-                pdf_bytes = page.pdf(format="A4", print_background=True)
-                browser.close()
-
             # Embed PDF in Streamlit
             b64 = base64.b64encode(pdf_bytes).decode()
             pdf_display = f'<iframe src="data:application/pdf;base64,{b64}" width="100%" height="800"></iframe>'
             st.markdown(pdf_display, unsafe_allow_html=True)
 
-            st.download_button(
-                label="⬇️ Download PDF",
-                data=pdf_bytes,
-                file_name="question_paper.pdf",
-                mime="application/pdf"
-            )
+    st.download_button(
+        label="⬇️ Download PDF",
+        data=pdf_bytes,
+        file_name="question_paper.pdf",
+        mime="application/pdf"
+    )
 
     
 
