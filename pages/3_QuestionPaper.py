@@ -433,7 +433,7 @@ Return ONLY a JSON array (no commentary). Each item must exactly follow this sch
 
 
 Strictly follow these Instructions for Question Generation
-1. Mapping to CO & Bloom’s Level (BL)
+1. Mapping to CO & Bloom's Level (BL)
    * CO: Ensure the question effectively tests the knowledge or skill described in the given Course Outcome.
    * BL: The question's cognitive demand must match the specified Bloom's Level. Use the following as a guide:
         * 	L1 (Remember): Ask the user to recall facts, definitions, basic concepts, or answer direct "what," "who," or "when" questions based on the text.
@@ -449,7 +449,8 @@ Strictly follow these Instructions for Question Generation
    * Part B/C: More detailed and multi-faceted.
 3. Subdivisions
    * Part B: Each question splits into a and b, both carrying full marks and independently answerable.
-   * Part C: One question with a and b, marks split (larger share first for odd totals, e.g., 13 → 7 & 6). Subdivisions must be complementary.
+   * Part C: One question with a and b, marks split (larger share first for odd totals, e.g., 13 → 7 & 6).
+    Subdivisions must be complementary but independently answerable.
 4. Context & Citations
    * Base all questions on the provided context.
    * Cite the Page number of the first chunk containing the required info.
