@@ -11,3 +11,4 @@ fpdf
 docx
 weasyprint 
 jinja2
+pdfkit
