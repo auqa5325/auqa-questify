@@ -10,4 +10,4 @@ markdown2
 fpdf
 docx
 weasyprint 
- jinja2
+jinja2
