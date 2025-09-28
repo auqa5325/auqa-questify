@@ -414,6 +414,8 @@ if "qn_matrix" in st.session_state and not st.session_state.qn_matrix.empty:
 # ---------------- Prompt template (single source of truth) -----------------
 PROMPT_TEMPLATE = """INSTRUCTION:
 You are an experienced university exam question-writer. Use ONLY the provided Context for factual support. 
+Generate exam questions that give data/scenarios in the question itself (dont point back to context) and ask students to deduce, compute, pseudocode or construct queries, solutions for numerical/algorithmic courses (arrays, trees, equations) 
+and to analyze, design or justify solutions for design/theory courses (case studies, models, architecture).
 Return ONLY a JSON array (no commentary). Each item must exactly follow this schema:
 
 {{
@@ -430,27 +432,32 @@ Return ONLY a JSON array (no commentary). Each item must exactly follow this sch
 }}
 
 
-INSTRUCTIONS:
-1.	Map to Course Outcome (CO) and Bloom's Level (BL): Each generated question must strictly adhere to the specified CO and BL.
-	* CO: Ensure the question effectively tests the knowledge or skill described in the given Course Outcome.
-	* BL: The question's cognitive demand must match the specified Bloom's Level. Use the following as a guide:
+Strictly follow these Instructions for Question Generation
+1. Mapping to CO & Bloom’s Level (BL)
+   * CO: Ensure the question effectively tests the knowledge or skill described in the given Course Outcome.
+   * BL: The question's cognitive demand must match the specified Bloom's Level. Use the following as a guide:
         * 	L1 (Remember): Ask the user to recall facts, definitions, basic concepts, or answer direct "what," "who," or "when" questions based on the text.
         *	L2 (Understand): Ask for an explanation of concepts or ideas. The question should require the user to summarize, classify, or describe the "how" or "why" of a topic in their own words, demonstrating comprehension.
         *	L3 (Apply): Pose a problem where the user must apply a known concept, formula, or procedure to a new but similar situation to find a definitive solution.
         *	L4 (Analyze): Require the user to break down information into its constituent parts to examine relationships. This could involve comparing/contrasting elements, differentiating between ideas, or interpreting data to draw a specific conclusion.
         *	L5 (Evaluate): Ask the user to make a judgment or form an opinion based on specific criteria. The question should require justifying a decision, critiquing a statement, or arguing for a particular standpoint.
         *	L6 (Create): Challenge the user to synthesize information to generate a new product, plan, or point of view. This could involve designing a solution, formulating a hypothesis, or developing a novel approach.
-2.	Question and Content Length:
-    *	Part A: Questions should be concise and direct.
-    *	Part B & Part C: Questions can be more detailed and multi-faceted to adequately assess higher-order thinking. The length should be appropriate for the complexity of the task.
-    *	Content: The supporting content field should remain brief (1–3 sentences).
-3.	Question Structure for Part B and Part C:
-    *   For each Part B row: produce two subdivisions with SUB = "a" and SUB = "b". Both subdivisions carry the full Marks value of the original row (i.e., each is worth the same full marks as the parent). The two subdivisions should be complementary in format or cognitive demand and each must be independently answerable to full-mark standards.
-    *	Part C: For each row in the mapping, you must produce a single question object containing two subdivisions (SUB = "a" and SUB = "b"). These subdivisions should be complementary (e.g., a calculation followed by an interpretation). The total marks for the row must be split between the two subdivisions. For odd-numbered marks, split them with the larger portion first (e.g., 13 marks become 7 for part 'a' and 6 for part 'b').
-4.	Context and Citations: Use the provided context chunks to source factual details for the questions. For each question, you must cite the Page number from the first context chunk that contains the necessary information. If a question is purely conceptual or applicative, set the Page to the document ID of the most relevant context chunk.
-5.	Factual Integrity: Do NOT invent facts or details not present in the provided context. If the context lacks the specificity for a factual recall question (L1), create a conceptual (L2) or applicative (L3+) question instead.
-6.	Inclusion of Contextual Questions: With a probability of approximately 50%, you should incorporate a relevant "book-back" style question found verbatim within the provided context. The chosen question must match the assigned CO and BL. Append an asterisk (*) to the end of any such question.
-
+2. Length & Format
+   * Write clear, academic-style questions similar to a university exam
+   * Ensure balance of theory and problem-solving questions and coding questions as appropriate.
+   * Part A: Concise, direct questions.
+   * Part B/C: More detailed and multi-faceted.
+3. Subdivisions
+   * Part B: Each question splits into a and b, both carrying full marks and independently answerable.
+   * Part C: One question with a and b, marks split (larger share first for odd totals, e.g., 13 → 7 & 6). Subdivisions must be complementary.
+4. Context & Citations
+   * Base all questions on the provided context.
+   * Cite the Page number of the first chunk containing the required info.
+5. Factual Integrity
+   * Do not invent facts.
+   * Questions should remain generic and must not explicitly reference the context text.
+   * Include all data necessary for solving any problem within the question itself.
+   * Fallback:If the context lacks details for L2, create an L1 or lower question instead.
 
 
 --- INPUT (placeholders filled at runtime) ---
@@ -628,6 +635,7 @@ if st.button("GENERATE QUESTION PAPER"):
 
         # Build query from topics
         query = "; ".join(unit_topics) if unit_topics else f"Unit {unit}"
+        st.write(f"**Query:** {query}")
 
         # --- Retrieval with optional course_id filter applied to both searches
         bm25_docs = bm25_search(query, num_hits, course_id=subject_code or None)
@@ -783,7 +791,7 @@ if "generated_qns" in st.session_state and st.session_state.generated_qns:
     else:
         filtered_df = df_out
 
-    st.dataframe(filtered_df, use_container_width=True, height=600)
+    st.dataframe(filtered_df, use_container_width=True, height=450)
     st.write(f"Showing {len(filtered_df)} of {len(df_out)} total questions")
 
 
