@@ -81,18 +81,18 @@ st.title("📘 AUQA: Minimal Question Paper Generator")
 # Basic metadata
 
 title= "ANNA UNIVERSITY (UNIVERSITY DEPARTMENTS)"
-stream=st.text_input("stream","B.E. /B. Tech / B. Arch (Full Time) ")
+stream=st.text_input("stream","B.E. /B. Tech ")
 exam_title =st.text_input("Exam title","END SEMESTER EXAMINATIONS,")
 exam_session = st.text_input("Exam Session (e.g. NOV/DEC 2025)", "NOV/DEC 2025")
 course=st.text_input("Course","COMPUTER SCIENCE AND ENGINEERING")
-semester = st.text_input("Semester", "VII / VIII")
-subject_code = st.text_input("Subject Code", "CN")
-subject_name = st.text_input("Subject Name", "Computer Networks")
+semester = st.text_input("Semester", "VII ")
+subject_code = st.text_input("Subject Code", "CS23602")
+subject_name = st.text_input("Subject Name", "Compiler Design")
 department = st.text_input("Department", "Computer Technology")
 regulation= st.text_input("Regulation","Regulation 2023")
 date_val = st.date_input("Date")  # returns a datetime.date
 # S3 PDF key (for Textract)
-s3_key = st.text_input("S3 PDF Key (syllabus)", "syllabus/CN.pdf")
+s3_key = st.text_input("S3 PDF Key (syllabus)", "syllabus/CS23602.pdf")
 st.markdown("---")
 # Models config
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
@@ -414,7 +414,7 @@ if "qn_matrix" in st.session_state and not st.session_state.qn_matrix.empty:
 # ---------------- Prompt template (single source of truth) -----------------
 PROMPT_TEMPLATE = """INSTRUCTION:
 You are an experienced university exam question-writer. Use ONLY the provided Context for factual support. 
-Generate exam questions that give data/scenarios in the question itself (dont point back to context) and ask students to deduce, compute, pseudocode or construct queries, solutions for numerical/algorithmic courses (arrays, trees, equations) 
+Generate exam questions that give data/scenarios in the question itself (dont point back or refer tables or figures in the context) and ask students to deduce, compute, pseudocode or construct queries, solutions for numerical/algorithmic courses (arrays, trees, equations) 
 and to analyze, design or justify solutions for design/theory courses (case studies, models, architecture).
 Return ONLY a JSON array (no commentary). Each item must exactly follow this schema:
 
