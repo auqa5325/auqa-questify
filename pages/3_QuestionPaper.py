@@ -412,13 +412,21 @@ if "qn_matrix" in st.session_state and not st.session_state.qn_matrix.empty:
 # client, index_name, bedrock, model_config, selected_model, subject_code, subject_name
 
 # ---------------- Prompt template (single source of truth) -----------------
-PROMPT_TEMPLATE = """INSTRUCTION:
-You are an experienced university exam question-writer. Use ONLY the provided Context for factual support. 
-Generate exam questions that give data/scenarios in the question itself (dont point back or refer tables or figures in the context) and ask students to deduce, compute, pseudocode or construct queries, solutions for numerical/algorithmic courses (arrays, trees, equations) 
-and to analyze, design or justify solutions for design/theory courses (case studies, models, architecture).
+PROMPT_TEMPLATE = """
+INSTRUCTION:
+You are an experienced university exam question-writer for a **C Programming course**. Use ONLY the provided Context for factual support. 
+
+Generate exam questions that:
+- Contain **code snippets or small programs** inside the question itself.  
+- Ask students to **write code, trace outputs, debug errors, complete missing code, construct algorithms in C, or explain step-by-step execution**.  
+- For **numerical/algorithmic aspects** (arrays, loops, recursion, pointers, structures), provide concrete input data and ask students to compute results, write functions, or simulate execution.  
+- For **design/theory aspects** (modular programming, memory management, file handling, program design), provide scenarios and ask students to design programs, justify code structure, or explain memory usage.  
+- Do **not** use vague verbs like *analyze* or *discuss*. Always require a **specific output or coding deliverable** (e.g., *“Write a function…”, “Trace and show output…”, “Correct the errors…”, “Implement using recursion…”*).  
+- Do **not** refer back to the Context tables/figures. All data (input arrays, sample outputs, incomplete code) must be embedded inside the question itself.  
+
 Return ONLY a JSON array (no commentary). Each item must exactly follow this schema:
 
-{{
+{
   "QNo": <int>,
   "Section": "Part A" | "Part B" | "Part C",
   "Marks": <int>,
@@ -426,10 +434,10 @@ Return ONLY a JSON array (no commentary). Each item must exactly follow this sch
   "CO": "COx",
   "BL": "Ly",
   "SUB": "a" | "b" | null,
-  "Qn": "<Question text (concise)>",
-  "Content": "<Short model answer/key points (1-3 sentences)>",
+  "Qn": "<Question text with C code snippet or coding instruction>",
+  "Content": "<Short model answer, expected output, or key points (1-3 sentences)>",
   "Page": "page range from Context>"
-}}
+}
 
 
 Strictly follow these Instructions for Question Generation
