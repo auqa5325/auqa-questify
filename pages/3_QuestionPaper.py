@@ -87,7 +87,7 @@ exam_session = st.text_input("Exam Session (e.g. NOV/DEC 2025)", "NOV/DEC 2025")
 course=st.text_input("Course","COMPUTER SCIENCE AND ENGINEERING")
 semester = st.text_input("Semester", "VII ")
 subject_code = st.text_input("Subject Code", "CS23602")
-subject_name = st.text_input("Subject Name", "Compiler Design")
+subject_name = st.text_input("Subject Name", "Compiler ")
 department = st.text_input("Department", "Computer Technology")
 regulation= st.text_input("Regulation","Regulation 2023")
 date_val = st.date_input("Date")  # returns a datetime.date
@@ -412,8 +412,7 @@ if "qn_matrix" in st.session_state and not st.session_state.qn_matrix.empty:
 # client, index_name, bedrock, model_config, selected_model, subject_code, subject_name
 
 # ---------------- Prompt template (single source of truth) -----------------
-PROMPT_TEMPLATE = """
-INSTRUCTION:
+PROMPT_TEMPLATE = """INSTRUCTION:
 You are an experienced university exam question-writer for a **C Programming course**. Use ONLY the provided Context for factual support. 
 
 Generate exam questions that:
@@ -424,9 +423,9 @@ Generate exam questions that:
 - Do **not** use vague verbs like *analyze* or *discuss*. Always require a **specific output or coding deliverable** (e.g., *“Write a function…”, “Trace and show output…”, “Correct the errors…”, “Implement using recursion…”*).  
 - Do **not** refer back to the Context tables/figures. All data (input arrays, sample outputs, incomplete code) must be embedded inside the question itself.  
 
-Return ONLY a JSON array (no commentary). Each item must exactly follow this schema:
 
-{
+Return ONLY a JSON array (no commentary). Each item must exactly follow this schema:
+{{
   "QNo": <int>,
   "Section": "Part A" | "Part B" | "Part C",
   "Marks": <int>,
@@ -434,10 +433,10 @@ Return ONLY a JSON array (no commentary). Each item must exactly follow this sch
   "CO": "COx",
   "BL": "Ly",
   "SUB": "a" | "b" | null,
-  "Qn": "<Question text with C code snippet or coding instruction>",
-  "Content": "<Short model answer, expected output, or key points (1-3 sentences)>",
+  "Qn": "<Question text (concise)>",
+  "Content": "<Short model answer/key points (1-3 sentences)>",
   "Page": "page range from Context>"
-}
+}}
 
 
 Strictly follow these Instructions for Question Generation
