@@ -4,7 +4,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 from playwright.sync_api import sync_playwright
 import streamlit as st
 
-def render_qp_pdf(data: dict, template_name: str = "template2.html", title: str = "CS23303 Paper → PDF"):
+def render_qp_pdf(data: dict, template_name: str = "template3.html", title: str = "CS23303 Paper → PDF"):
     """
     Render a question paper from JSON data using Jinja2 + Playwright (headless Chromium),
     preview it in Streamlit, and provide a download button.

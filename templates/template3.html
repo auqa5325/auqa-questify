@@ -1,0 +1,221 @@
+{# Question Paper Template: Landscape layout with remarks column #}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ title }}</title>
+  <style>
+     body::before {
+    content: "QUESTIFY";
+    position: fixed;
+    top: 40%;
+    left: 20%;
+    font-size: 80px;
+    color: rgba(150, 150, 150, 0.2); /* light gray transparent */
+    transform: rotate(-30deg);
+    z-index: 0;
+    pointer-events: none;
+  }
+    @page { size: A4 landscape; margin: 20px 20px 20px 20px; }
+    body { margin: 0; font-family: 'Times New Roman', Times, serif; font-size: 12px; color: #000; }
+
+    /* Tables: allow breaking across pages, repeat headers */
+    table { width: 100%; border-collapse: collapse; page-break-inside: auto; }
+    thead { display: table-header-group; } /* repeat on page break */
+    tfoot { display: table-footer-group; }
+    tr { page-break-inside: avoid; page-break-after: auto; }
+
+    th, td { padding: 3px; vertical-align: top; border:1px solid #000; }
+    .center { text-align: center; }
+    .right { text-align: right; }
+    .left { text-align: left; }
+    .bold { font-weight: bold; }
+
+    /* Keep header visuals clean when split over pages */
+    .no-border td { border:none; }
+
+    /* Small helpers */
+    .part-title { text-align: center; font-weight: bold; margin: 12px 0 4px 0; }
+    .part-sub { text-align: center; margin-bottom: 6px; }
+
+    /* Question layout with remarks column */
+    .question-row { height: 120px; }
+    .question-cell { width: 45%; vertical-align: top; }
+    .remarks-cell { width: 55%; vertical-align: top; }
+    .remarks-area { height: 100px; border: 1px solid #ccc; background-color: #f9f9f9; }
+  </style>
+</head>
+<body>
+
+  <!-- Header block (kept as simple table, no forced page-breaks) -->
+  <table style="width:100%; border-collapse:collapse;">
+    <tr class="no-border">
+      <td style="width:50%;"></td>
+      <td style="width:50%; text-align:right;">
+        <table style="margin-left:auto; border-collapse: collapse;">
+          <tr>
+            <td style="border:1px solid #000; padding:2px; text-align:center; width:70px; height:20px;">Roll No</td>
+            {% for i in range(10) %}
+            <td style="border:1px solid #000; width:20px; height:20px;">&nbsp;</td>
+            {% endfor %}
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr class="no-border">
+      <td colspan="2" class="center bold">ANNA UNIVERSITY (UNIVERSITY DEPARTMENTS)</td>
+    </tr>
+    <tr class="no-border">
+      <td colspan="2" class="center">{{ stream }} - {{ exam_title }} {{ exam_session }}</td>
+    </tr>
+    <tr class="no-border">
+      <td colspan="2" class="center">{{ course }}</td>
+    </tr>
+    <tr class="no-border">
+      <td colspan="2" class="center">SEMESTER {{ semester }}</td>
+    </tr>
+    <tr class="no-border">
+      <td colspan="2" class="center">{{ subject_code }} - {{ subject_name }}</td>
+    </tr>
+    <tr class="no-border">
+      <td colspan="2" class="center">({{ regulation|default('2023') }})</td>
+    </tr>
+    <tr class="no-border">
+      <td colspan="2" class="right">Date : {{ date }}</td>
+    </tr>
+    <tr class="no-border">
+      <td style="width:50%; text-align:left;">Time : {{ time }}</td>
+      <td style="width:50%; text-align:right;">Max Marks: {{ max_marks }}</td>
+    </tr>
+  </table>
+
+  <!-- Separate CO Table -->
+  <br>
+  <table style="width:100%;">
+    <tbody>
+    {% for co in course_outcomes %}
+      <tr>
+        <td style="width:20%; font-weight:bold;">{{ co.code }}</td>
+        <td style="width:80%;">{{ co.text }}</td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <p style="margin-top:8px;">
+    <b>BL - Bloom's Taxonomy Levels</b><br>
+    (L1-Remembering, L2-Understanding, L3-Applying, L4-Analysing, L5-Evaluating, L6-Creating)
+  </p>
+
+  <!-- PART A -->
+<div class="part-title">
+  PART A ({{ part_summary["Part A"].qn_count }} × 
+  {{ (part_summary["Part A"].total_marks // (part_summary["Part A"].qn_count or 1)) }} 
+  = {{ part_summary["Part A"].total_marks }} Marks)
+</div>
+  <div class="part-sub">(Answer all questions)</div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:8%;">Qn.No</th>
+        <th style="width:37%;">Questions</th>
+        <th style="width:8%;">Marks</th>
+        <th style="width:8%;">CO</th>
+        <th style="width:8%;">BL</th>
+        <th style="width:31%;">Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for q in questions if q.Section == 'Part A' %}
+      <tr class="question-row">
+        <td class="center">{{ q.QNo }}</td>
+        <td class="question-cell">{{ q.Qn }}</td>
+        <td class="center">{{ q.Marks }}</td>
+        <td class="center">{{ q.CO }}</td>
+        <td class="center">{{ q.BL }}</td>
+        <td class="remarks-cell">
+          <div class="remarks-area"></div>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+  <!-- PART B -->
+ <div class="part-title">
+  PART B ({{ part_summary["Part B"].qn_count }} × 
+  {{ (part_summary["Part B"].total_marks // (part_summary["Part B"].qn_count or 1)) }} 
+  = {{ part_summary["Part B"].total_marks }} Marks)
+</div>
+
+  <table>
+  <thead>
+    <tr>
+      <th style="width:8%;">Qn</th>
+      <th style="width:37%;">Questions</th>
+      <th style="width:8%;">Marks</th>
+      <th style="width:8%;">CO</th>
+      <th style="width:8%;">BL</th>
+      <th style="width:31%;">Remarks</th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for q in questions if q.Section == 'Part B' %}
+    <tr class="question-row">
+      <td>{{ q.QNo }}{% if q.SUB %} ({{ q.SUB }}){% endif %}</td>
+      <td class="question-cell">{{ q.Qn }}</td>
+      <td class="center">{{ q.Marks }}</td>
+      <td class="center">{{ q.CO }}</td>
+      <td class="center">{{ q.BL }}</td>
+      <td class="remarks-cell">
+        <div class="remarks-area"></div>
+      </td>
+    </tr>
+    {% if q.SUB == 'a' %}
+    <tr><td colspan="6" class="center bold">OR</td></tr>
+    {% endif %}
+  {% endfor %}
+  </tbody>
+  </table>
+
+
+  <!-- PART C -->
+<div class="part-title">
+  PART C ({{ part_summary["Part C"].qn_count }} × 
+  {{ (part_summary["Part C"].total_marks // (part_summary["Part C"].qn_count or 1)) }} 
+  = {{ part_summary["Part C"].total_marks }} Marks)
+</div>
+  <div class="part-sub">(Qno {{ questions|selectattr('Section','equalto','Part C')|map(attribute='QNo')|unique|list|join(', ') }} is compulsory)</div>
+  <table>
+    <thead>
+      <tr>
+        <th style="width:8%;">Qn</th>
+        <th style="width:37%;">Questions</th>
+        <th style="width:8%;">Marks</th>
+        <th style="width:8%;">CO</th>
+        <th style="width:8%;">BL</th>
+        <th style="width:31%;">Remarks</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for q in questions if q.Section == 'Part C' %}
+      <tr class="question-row">
+        <td>{{ q.QNo }}{% if q.SUB %} ({{ q.SUB }}){% endif %}</td>
+        <td class="question-cell">{{ q.Qn }}</td>
+        <td class="center">{{ q.Marks }}</td>
+        <td class="center">{{ q.CO }}</td>
+        <td class="center">{{ q.BL }}</td>
+        <td class="remarks-cell">
+          <div class="remarks-area"></div>
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+
+<p style="margin-top:15px; font-style:italic; text-align:left;">
+  * This question paper was auto-generated using Questify (v0.1).
+</p>
+
+</body>
+</html>

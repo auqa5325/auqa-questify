@@ -920,4 +920,4 @@ if "generated_qns" in st.session_state and st.session_state.generated_qns:
     qp_data = st.session_state.get("exported_exam_dict")
 
     # Render the PDF UI (uses Playwright internally now)
-    render_qp_pdf(qp_data, template_name="template2.html", title="Preview and Download Question Paper PDF")
+    render_qp_pdf(qp_data, template_name="template3.html", title="Preview and Download Question Paper PDF")
