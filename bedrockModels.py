@@ -202,3 +202,45 @@ def converse_with_document_from_s3(
         raise RuntimeError(f"ERROR: Can't fetch document from s3://{bucket}/{key} or invoke model. Reason: {e}") from e
 
 
+from botocore.exceptions import ClientError
+from typing import Generator
+
+
+def converse_stream_claude(
+    client,
+    model_id: str,
+    user_message: str,
+    max_tokens: int = 512,
+    temperature: float = 0.5,
+    top_p: float = 0.9,
+) -> Generator[str, None, None]:
+    """
+    Stream responses from Anthropic Claude using Bedrock converse_stream API.
+
+    Yields text chunks as they arrive.
+    """
+    conversation = [
+        {"role": "user", "content": [{"text": user_message}]}
+    ]
+
+    try:
+        streaming_response = client.converse_stream(
+            modelId=model_id,
+            messages=conversation,
+            inferenceConfig={
+                "maxTokens": max_tokens,
+                "temperature": temperature,
+                "topP": top_p,
+            },
+        )
+
+        for event in streaming_response["stream"]:
+            if "contentBlockDelta" in event:
+                delta = event["contentBlockDelta"]["delta"]
+                if "text" in delta:
+                    yield delta["text"]
+
+    except (ClientError, Exception) as e:
+        raise RuntimeError(
+            f"ERROR: Can't stream from '{model_id}'. Reason: {e}"
+        ) from e
