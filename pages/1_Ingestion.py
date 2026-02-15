@@ -58,6 +58,12 @@ def make_chunk_id(course_id: str, chunk_text: str) -> str:
     raw = f"{course_id}|{norm}"
     return hashlib.blake2b(raw.encode("utf-8"), digest_size=16).hexdigest()
 
+
+def make_chunk_hash(chunk_text: str) -> str:
+    norm = normalize_text(chunk_text)
+    return hashlib.blake2b(norm.encode("utf-8"), digest_size=16).hexdigest()
+
+
 def make_page_chunks(docs, chunk_size=6, overlap=2):
     """Re-chunk page-level docs into multi-page chunks."""
     docs_sorted = sorted(docs, key=lambda x: x["page_no"])
@@ -77,23 +83,44 @@ def make_page_chunks(docs, chunk_size=6, overlap=2):
             "course_id": chunk_docs[0]["course_id"],
             "filename": chunk_docs[0]["filename"],
             "page_range": f"{page_start}-{page_end}",
-            "pages": [d["page_no"] for d in chunk_docs]
+            "pages": [d["page_no"] for d in chunk_docs],
+            "page_start": page_start,
+            "page_end": page_end,
+            "book_id": chunk_docs[0].get("book_id"),
+            "chapter_no": chunk_docs[0].get("chapter_no"),
+            "section_no": chunk_docs[0].get("section_no"),
         })
     return new_chunks
 
 def doc_to_action(doc, index_name=index_name):
     """Convert doc into OpenSearch bulk index action with deterministic ID."""
     doc_id = make_chunk_id(doc["course_id"], doc["chunk_text"])
+    page_start = doc.get("page_start")
+    page_end = doc.get("page_end")
+    if page_start is None or page_end is None:
+        range_text = str(doc.get("page_range") or "")
+        m = re.match(r"^\s*(\d+)\s*-\s*(\d+)\s*$", range_text)
+        if m:
+            page_start = int(m.group(1))
+            page_end = int(m.group(2))
+
     return {
         "_op_type": "index",    # overwrite if exists
         "_index": index_name,
         "_id": doc_id,
         "_source": {
+            "chunk_id": doc_id,
+            "chunk_hash": make_chunk_hash(doc["chunk_text"]),
             "chunk_text": doc["chunk_text"],
             "course_id": doc["course_id"],
             "filename": doc["filename"],
             "page_range": doc.get("page_range"),
             "pages": doc.get("pages", [doc.get("page_no")]),
+            "page_start": page_start,
+            "page_end": page_end,
+            "book_id": doc.get("book_id"),
+            "chapter_no": doc.get("chapter_no"),
+            "section_no": doc.get("section_no"),
             "vector_field": doc["vector_field"]   # Titan embedding
         }
     }
@@ -103,6 +130,9 @@ st.title("📥 Course PDF Ingestion")
 
 course_id = st.text_input("Enter Course ID:")
 file_key = st.text_input("Enter PDF Key in S3 (e.g., Textbooks/SPM.pdf):")
+book_id = st.text_input("Optional Book ID (QuestIndex linkage)", "")
+default_chapter_no = st.text_input("Optional Chapter No (applied to all chunks)", "")
+default_section_no = st.text_input("Optional Section No (applied to all chunks)", "")
 
 if st.button("Ingest"):
     if not course_id or not file_key:
@@ -158,7 +188,10 @@ if st.button("Ingest"):
                 "chunk_text": "\n".join(lines),
                 "course_id": course_id,
                 "filename": filename,
-                "page_no": page_no
+                "page_no": page_no,
+                "book_id": book_id.strip() or None,
+                "chapter_no": default_chapter_no.strip() or None,
+                "section_no": default_section_no.strip() or None,
             })
 
         # --- Chunk into multi-page ---

@@ -12,3 +12,4 @@ docx
 weasyprint 
 jinja2
 pdfkit
+PyMuPDF
