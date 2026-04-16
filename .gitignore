@@ -1,2 +1,11 @@
 *.env
 .env
+/myvenv
+/venv/
+__pycache__/
+*.pyc
+.DS_Store
+*.pkl
+*.sqlite3
+*.db
+*.log

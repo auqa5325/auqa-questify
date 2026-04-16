@@ -2,16 +2,40 @@ import os, json, pathlib
 import boto3
 import pandas as pd
 import streamlit as st
-import tiktoken
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 from dotenv import load_dotenv
+from bedrockModels import count_tokens, build_request
+
+# ----------------------------------------------------------------------------
+# AUQA - Streamlit Question / Answer / Summarization App
+# This file is a drop-in replacement for your original app. It includes
+# separate, clarified prompt templates for each MODE: QUESTION GENERATION,
+# ANSWER EXTRACTION and SUMMARIZATION. The app builds the final prompt by
+# combining the selected mode's template with retrieval context and UI guidance.
+# ----------------------------------------------------------------------------
+
+# --- Local helpers ---
+def truncate_to_limit(text: str, max_tokens: int, buffer: int = 2500):
+    import tiktoken
+    enc = tiktoken.get_encoding("cl100k_base")
+    tokens = enc.encode(text)
+    if len(tokens) > (max_tokens - buffer):
+        return enc.decode(tokens[: max_tokens - buffer]), True
+    return text, False
+
+
+def normalize_ratios(e: float, m: float, h: float):
+    s = e + m + h
+    if s <= 0:
+        return 1/3, 1/3, 1/3
+    return e/s, m/s, h/s
 
 # --- Load environment variables ---
 load_dotenv()
 region = os.environ["AWS_REGION"]
 os_domain = os.environ["OS_DOMAIN"]
-index_name = "test-auqa"
+index_name = os.environ.get("OS_INDEX", "test-auqa")
 
 # --- Load models config from outer directory ---
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent
@@ -41,65 +65,13 @@ client = OpenSearch(
 
 bedrock = session.client("bedrock-runtime", region_name=region)
 
-# --- Token helpers ---
-def count_tokens(text: str) -> int:
-    try:
-        enc = tiktoken.get_encoding("cl100k_base")
-        return len(enc.encode(text))
-    except Exception:
-        return len(text.split())
-
-
-def truncate_to_limit(text: str, max_tokens: int, buffer: int = 2500):
-    enc = tiktoken.get_encoding("cl100k_base")
-    tokens = enc.encode(text)
-    if len(tokens) > (max_tokens - buffer):
-        return enc.decode(tokens[: max_tokens - buffer]), True
-    return text, False
-
-
-# --- NEW: difficulty helpers (ratios) ---
-def normalize_ratios(e: float, m: float, h: float):
-    s = e + m + h
-    if s <= 0:
-        return 1/3, 1/3, 1/3
-    return e/s, m/s, h/s
-
-
-# --- Helper to build request ---
-def build_request(model_id, model_name, prompt, max_gen_len):
-    if model_id.startswith("amazon.nova"):
-        return {
-            "messages": [{"role": "user", "content": [{"text": prompt}]}],
-            "inferenceConfig": {"maxTokens": max_gen_len, "temperature": 0.5, "topP": 0.9}
-        }
-    elif "anthropic" in model_id or "claude" in model_name.lower():
-        return {
-            "anthropic_version": "bedrock-2023-05-31",
-            "max_tokens": max_gen_len,
-            "messages": [
-                {"role": "user", "content": [{"type": "text", "text": prompt}]}
-            ]
-        }
-    elif "llama" in model_id:
-        formatted_prompt = f"""
-<|begin_of_text|><|start_header_id|>user<|end_header_id|>
-{prompt}
-<|eot_id|>
-<|start_header_id|>assistant<|end_header_id|>
-"""
-        return {"prompt": formatted_prompt, "max_gen_len": max_gen_len, "temperature": 0.5}
-    elif "mistral" in model_id:
-        formatted_prompt = f"<s>[INST] {prompt} [/INST]"
-        return {"prompt": formatted_prompt, "max_tokens": max_gen_len, "temperature": 0.5}
-    else:
-        return {"prompt": prompt, "max_tokens": max_gen_len, "temperature": 0.5}
-
 # --- Streamlit UI ---
-st.title("🔎 Question Generation")
+st.set_page_config(page_title="AUQA — Questioning Toolkit", layout="wide")
+st.title("🔎 AUQA — Questions & Answers Toolkit")
 
 query = st.text_input("Enter Search Query:")
 focus_topic = st.text_input("Focus Topic (optional):")
+course_id = st.text_input("Course ID (filter results by course)")
 ratio = st.slider("Hybrid Search Ratio (BM25 vs Vector)", 0.0, 1.0, 0.5)
 num_hits = st.slider("Number of Search Hits (BM25 + Vector)", 1, 20, 3)
 max_gen_len = st.slider("Max Generation Length (tokens)", 50, 4096, 512, step=50)
@@ -109,6 +81,50 @@ model_names = [m["name"] for m in MODELS]
 selected_model = st.selectbox("Choose Model:", model_names)
 model_config = next(m for m in MODELS if m["name"] == selected_model)
 
+mode = ["QUESTION GENERATION", "ANSWER EXTRACTION", "SUMMARIZATION"]
+selected_mode = st.selectbox("Choose Mode:", mode)
+
+# Default prompt templates per mode
+PROMPTS = {
+    "QUESTION GENERATION": {
+        "title": "Question Generation Prompt",
+        "template": (
+            "You are an expert exam-question writer.\n"
+            "Given the USER QUERY, FOCUS, and the CONTEXT (source passages), generate a list of exam-style questions.\n"
+            "Return STRICT JSON: an array of objects with the following keys:\n"
+            "  - question (string)\n"
+            "  - difficulty (Easy|Medium|Hard)\n"
+            "  - blooms_level (Remember|Understand|Apply|Analyze|Evaluate|Create)\n"
+            "  - context (short excerpt or location hint where the answer lies)\n"
+            "  - page_no (page number or page range for the answer)\n"
+            "Rules:\n"
+            "  - Generate the TOTAL number of questions requested and strictly follow the difficulty ratio provided.\n"
+            "  - Do NOT copy sentences verbatim from the context. Rephrase and create conceptual or scenario-based items.\n"
+            "  - If an answer cannot be found in the provided context, mark the question as 'requires_external' = true.\n"
+        )
+    },
+    "ANSWER EXTRACTION": {
+        "title": "Answer Extraction Prompt",
+        "template": (
+            "You are a precise answer extraction assistant.\n"
+            "Task: Find a concise, evidence-backed answer to the USER QUERY using ONLY the provided CONTEXT (retrieved chunks).\n"
+            "Rules:\n"
+            "  - If the context does not contain an answer, return answer = null and explain briefly why.\n"
+            "  - Do NOT hallucinate facts; cite exact context segments as the source.\n"
+        )
+    },
+    "SUMMARIZATION": {
+        "title": "Summarization Prompt",
+        "template": (
+            "You are a concise summarization assistant.\n"
+            "Task: Produce a clear, structured summary of the provided CONTEXT tailored to the USER QUERY and FOCUS.\n"
+            "Rules:\n"
+            "  - Prioritize facts and statements present in the context.\n"
+            "  - Keep the summary neutral and citation-aware (include page_range or doc ids for claims when possible).\n"
+        )
+    }
+}
+
 # Show model info
 st.markdown(
     f"**Max Context:** {model_config['max_tokens']} tokens | "
@@ -116,23 +132,15 @@ st.markdown(
     f"💰 Output: ${model_config['price_output']}/1k"
 )
 
+# Editable prompt area (mode-specific default)
+default_prompt = PROMPTS[selected_mode]["template"]
 prompt_template = st.text_area(
-    "Edit Question Generation Prompt:",
-    '''Generate exam-style questions based on the retrieved context and query.
-    Expected Output (strict JSON):
-    [
-      {{
-    "question": "...",
-    "difficulty": "Easy|Medium|Hard",
-    "blooms_level": "Remember|Understand|Apply|Analyze|Evaluate|Create"
-    "context":"Where the answer for the question lies"
-    "page_no":"For the answer of question"
-      }}
-    ]'''
-    
+    f"Edit {PROMPTS[selected_mode]['title']}:",
+    default_prompt,
+    height=220
 )
 
-# --- NEW: difficulty UI (doesn't change generation logic — only enriches the prompt) ---
+# --- NEW: difficulty UI (only used for question generation) ---
 no = st.number_input("Total Questions", min_value=1, max_value=100, value=5, step=1)
 col1, col2, col3 = st.columns(3)
 with col1:
@@ -146,62 +154,76 @@ with col3:
 _easy, _medium, _hard = normalize_ratios(easy_raw, medium_raw, hard_raw)
 st.caption(f"Normalized ratios → Easy={_easy:.2f}, Medium={_medium:.2f}, Hard={_hard:.2f}")
 
-# Guidance block to append to the user's prompt
-ratio_guidance = f"""
+# Guidance block to append to the user's prompt (mode-aware)
+if selected_mode == "QUESTION GENERATION":
+    guidance = f"""
 You are an **AI assistant** specialized in **automatic question generation**.
-Your task is to create insightful and meaningful questions based on the provided **context** and **user query**.
 
----
+Goals:
+1. Generate **{no} questions** in total, distributed based on the given difficulty ratio.
+2. Classify each question by Difficulty and Bloom's Taxonomy level.
 
-### **Goals**
-1. Generate **{no} questions** in total, distributed based on the given difficulty ratio:
-2. Ensure the ratio is **strictly followed**. If the sum of ratios is not exactly 1.0, adjust proportionally.
-3. Classify each question by:
-   - **Difficulty Level** → Easy / Medium / Hard
-   - **Bloom's Taxonomy Level** → Choose one of:
-        * Remember
-        * Understand
-        * Apply
-        * Analyze
-        * Evaluate
-        * Create
-
----
-
-**User Requirements**:
+User Requirements:
 - Total Questions: {no}
 - Difficulty Ratio: Easy={_easy}, Medium={_medium}, Hard={_hard}
-
-
-
 
 Rules:
 - Do NOT copy sentences directly from the context.
 - Make questions conceptual; include scenario-based items where suitable.
 - Strictly follow the difficulty ratio; adjust proportionally if raw ratios don't sum to 1.
 """.strip()
-
-if query:
-    # --- BM25 search ---
-    bm25_resp = client.search(
-        index=index_name,
-        body={"size": num_hits, "query": {"match": {"chunk_text": query}}}
+elif selected_mode == "ANSWER EXTRACTION":
+    guidance = (
+        "You are an extractive assistant. Return a concise answer supported by the exact context passages for a User Query given. "
+        "If the answer is not present, be explicit and return answer=null. Prefer short, evidence-backed outputs."
     )
+else:  # SUMMARIZATION
+    guidance = (
+        "You are a summarization assistant. Produce a short structured summary focused on the user query and focus topic. "
+        "Include key points and important terms where possible. Keep it factual and cite page ranges/doc ids."
+    )
+
+# --- Retrieval logic (only run when query provided) ---
+preview_prompt = None
+if query:
+    # --- BM25 search (with optional course_id filter) ---
+    if course_id:
+        bm25_query = {
+            "size": num_hits,
+            "query": {
+                "bool": {
+                    "filter": [{"term": {"course_id": course_id}}],
+                    "must": {"match": {"chunk_text": query}}
+                }
+            }
+        }
+    else:
+        bm25_query = {"size": num_hits, "query": {"match": {"chunk_text": query}}}
+
+    bm25_resp = client.search(index=index_name, body=bm25_query)
     bm25_docs = [(hit["_id"], hit["_source"]["chunk_text"], hit["_source"].get("page_range", "?"))
                  for hit in bm25_resp["hits"]["hits"]]
 
-    # --- Vector search ---
+    # --- Vector search (with optional course_id filter) ---
     embedding_body = json.dumps({"inputText": query})
     resp = bedrock.invoke_model(modelId="amazon.titan-embed-text-v2:0", body=embedding_body)
     emb = json.loads(resp["body"].read())["embedding"]
 
-    vector_resp = client.search(
-        index=index_name,
-        body={"size": num_hits, "query": {"knn": {"vector_field": {"vector": emb, "k": num_hits}}}}
-    )
+    if course_id:
+        vector_query = {
+            "size": num_hits,
+            "query": {
+                "bool": {
+                    "filter": [{"term": {"course_id": course_id}}],
+                    "must": {"knn": {"vector_field": {"vector": emb, "k": num_hits}}}
+                }
+            }
+        }
+    else:
+        vector_query = {"size": num_hits, "query": {"knn": {"vector_field": {"vector": emb, "k": num_hits}}}}
+
+    vector_resp = client.search(index=index_name, body=vector_query)
     vector_docs = [(hit["_id"], hit["_source"]["chunk_text"], hit["_source"].get("page_range", "?"))
-                   for hit in vector_resp["hits"]["_hits"]] if "_hits" in vector_resp.get("hits", {}) else [
-                   (hit["_id"], hit["_source"]["chunk_text"], hit["_source"].get("page_range", "?"))
                    for hit in vector_resp.get("hits", {}).get("hits", [])]
 
     # --- Weighted merge & dedup by doc_id ---
@@ -216,46 +238,54 @@ if query:
             seen_ids.add(doc_id)
 
     # --- Build context ---
-    context = "\n".join([t for _, t, _ in final_chunks])
+    # For extraction and summarization, provide additional metadata to the model (doc id + page_range)
+    context_entries = []
+    for did, txt, pr in final_chunks:
+        # keep each chunk reasonably short in the prompt
+        context_entries.append(f"[DOC_ID:{did} | PAGES:{pr}] {txt}")
+
+    context = "\n\n".join(context_entries)
 
     # --- Show retrieved chunks ---
     df_chunks = pd.DataFrame(final_chunks, columns=["Doc ID", "Chunk Text", "Page Range"])
     st.subheader("📄 Retrieved Chunks (deduplicated by Doc ID)")
     st.dataframe(df_chunks)
 
-    # --- Preview prompt (UNCHANGED logic: still uses prompt_template; we only append guidance) ---
+    # --- Preview prompt (mode-aware) ---
     preview_prompt = (
         f"{prompt_template}\n\n"
         f"Query: {query}\n"
         f"Focus: {focus_topic}\n"
         f"Context: {context}\n\n"
-        f"{ratio_guidance}"
+        f"{guidance}"
     )
+
     token_count = count_tokens(preview_prompt)
     st.info(f"📏 Full Prompt Length: **{token_count} tokens** (limit {model_config['max_tokens']})")
 
-if st.button("Generate Questions"):
+# --- ACTION: Generate ---
+if st.button("Generate"):
     if not query:
         st.error("Please enter a query")
     else:
-        # Truncate prompt if needed
-        prompt, truncated = truncate_to_limit(preview_prompt, model_config["max_tokens"])
+        # ensure preview_prompt exists (should if query provided earlier)
+        prompt_to_send = preview_prompt or (prompt_template + f"\nQuery: {query}\nFocus: {focus_topic}")
+
+        # Truncate if needed
+        prompt, truncated = truncate_to_limit(prompt_to_send, model_config["max_tokens"]) if model_config.get("max_tokens") else (prompt_to_send, False)
         if truncated:
             st.warning(f"⚠️ Prompt truncated to fit {model_config['max_tokens']} tokens.")
 
         model_id = model_config["id"]
-        body = build_request(model_id, selected_model, prompt, max_gen_len)
-
-        # --- Call Bedrock ---
+        # For amazon.nova family use converse API (returns structured output), else use invoke_model
         if model_id.startswith("amazon.nova"):
-            resp = bedrock.converse(
-                modelId=model_id,
-                messages=body["messages"],
-                inferenceConfig=body["inferenceConfig"]
-            )
+            conversation = [{"role": "user", "content": [{"text": prompt}]}]
+            resp = bedrock.converse(modelId=model_id, messages=conversation,
+                                     inferenceConfig={"maxTokens": max_gen_len, "temperature": 0.0, "topP": 0.9})
             generated_text = resp["output"]["message"]["content"][0]["text"]
             usage = resp.get("usage", {})
         else:
+            body = build_request(model_id, selected_model, prompt, max_gen_len)
             resp = bedrock.invoke_model(modelId=model_id, body=json.dumps(body))
             model_response = json.loads(resp["body"].read())
             usage = model_response.get("usage", {})
@@ -263,15 +293,21 @@ if st.button("Generate Questions"):
             if "anthropic" in model_id or "claude" in selected_model.lower():
                 generated_text = model_response["content"][0]["text"]
             elif "llama" in model_id:
-                generated_text = model_response["generation"]
+                generated_text = model_response.get("generation") or str(model_response)
             elif "mistral" in model_id:
-                generated_text = model_response["outputs"][0]["text"]
+                generated_text = model_response.get("outputs", [{"text": str(model_response)}])[0].get("text")
             else:
                 generated_text = str(model_response)
 
         # --- Show output ---
-        st.subheader("Generated Questions")
-        st.write(generated_text)
+        st.subheader("Generated Output")
+
+        # Try to pretty-print JSON if it looks like JSON
+        try:
+            parsed = json.loads(generated_text)
+            st.json(parsed)
+        except Exception:
+            st.write(generated_text)
 
         # --- Token usage & cost ---
         if usage:
@@ -293,4 +329,6 @@ if st.button("Generate Questions"):
         st.metric("Output Cost", f"${output_cost:.4f}{' (approx)' if approx else ''}")
         st.metric("Total Cost", f"${total_cost:.4f}{' (approx)' if approx else ''}")
 
-        
+# Footer guidance
+st.markdown("---")
+st.caption("Tip: Edit the mode-specific prompt above for custom behavior. For question generation, use the difficulty controls; for extraction, keep queries concise; for summarization, set a short focus to get targeted summaries.")
