@@ -3,113 +3,175 @@ import mimetypes
 from dotenv import load_dotenv
 import streamlit as st
 import boto3
+import pandas as pd
 
 load_dotenv()
 
-# Configuration from environment (ensure these exist in your .env)
+# Configuration
 AWS_REGION = os.environ.get("AWS_REGION")
 S3_BUCKET = os.environ.get("S3_BUCKET")
 
-st.title("📤 Upload a local file to S3")
-st.markdown("Choose a file from your computer and upload it directly to the configured S3 bucket.")
+st.set_page_config(page_title="S3 File Explorer", layout="wide")
+st.title("📂 S3 File Explorer")
 
 if not AWS_REGION or not S3_BUCKET:
     st.error("AWS_REGION and S3_BUCKET must be set in your environment (.env).")
     st.stop()
 
-uploaded_file = st.file_uploader("Choose a file to upload", accept_multiple_files=False)
+s3_client = boto3.client("s3", region_name=AWS_REGION)
 
-default_key = None
-if uploaded_file is not None:
-    default_key = uploaded_file.name
+# --- SESSION STATE ---
+if "current_path" not in st.session_state:
+    st.session_state.current_path = ""  # Root
+if "items_limit" not in st.session_state:
+    st.session_state.items_limit = 20
 
-key = st.text_input("S3 object key (path in bucket)", value=default_key or "")
-public = st.checkbox("Make object publicly readable (ACL=public-read)", value=False)
+def navigate_to(path):
+    st.session_state.current_path = path
+    st.session_state.items_limit = 20  # Reset pagination on folder change
+    st.rerun()
 
-if st.button("Upload"):
-    if uploaded_file is None:
-        st.error("Please choose a file first.")
-    elif not key:
-        st.error("Please provide an S3 object key (destination path).")
+def load_more():
+    st.session_state.items_limit += 20
+
+def format_size(size_bytes):
+    if size_bytes == 0: return "0 B"
+    elif size_bytes < 1024: return f"{size_bytes} B"
+    elif size_bytes < 1024**2: return f"{size_bytes / 1024:.1f} KB"
+    elif size_bytes < 1024**3: return f"{size_bytes / (1024**2):.1f} MB"
+    else: return f"{size_bytes / (1024**3):.1f} GB"
+
+# --- BREADCRUMB NAVIGATION ---
+# This replaces the "Back" buttons with clickable path segments
+st.subheader("Navigation")
+path_parts = st.session_state.current_path.strip("/").split("/")
+breadcrumb_cols = st.columns(len(path_parts) + 1)
+
+# Root Button
+if breadcrumb_cols[0].button("🏠 Root", key="bc_root"):
+    navigate_to("")
+
+# Dynamic Breadcrumbs
+current_acc = ""
+for i, part in enumerate(path_parts):
+    if part:
+        current_acc += f"/{part}"
+        # We use i+1 because index 0 was the Root button
+        if breadcrumb_cols[i+1].button(f" {part} ❯", key=f"bc_{i}", help=f"Go to {current_acc}"):
+            navigate_to(current_acc)
+
+st.markdown("---")
+
+# --- FILE LISTING LOGIC ---
+st.subheader("📋 Contents")
+
+try:
+    paginator = s3_client.get_paginator("list_objects_v2")
+    pages = paginator.paginate(Bucket=S3_BUCKET, Prefix=st.session_state.current_path, Delimiter='/')
+
+    folders = []
+    files = []
+
+    for page in pages:
+        if "CommonPrefixes" in page:
+            for prefix in page["CommonPrefixes"]:
+                folder_path = prefix["Prefix"]
+                display_name = folder_path.replace(st.session_state.current_path, "").lstrip("/")
+                folders.append({
+                    "Type": "📁 Folder",
+                    "Name": display_name,
+                    "Full Path": folder_path,
+                    "Last Modified": "-",
+                    "Size": "-"
+                })
+
+        if "Contents" in page:
+            for obj in page["Contents"]:
+                if obj["Key"] == st.session_state.current_path:
+                    continue
+                files.append({
+                    "Type": "📄 File",
+                    "Name": obj["Key"].replace(st.session_state.current_path, "").lstrip("/"),
+                    "Full Path": obj["Key"],
+                    "Last Modified": obj["LastModified"].strftime("%Y-%m-%d %H:%M:%S"),
+                    "Size": format_size(obj["Size"])
+                })
+
+    # Sort: Folders first, then files
+    all_items = folders + files
+    
+    # Apply Pagination Limit
+    display_items = all_items[:st.session_state.items_limit]
+
+    if display_items:
+        header_col1, header_col2, header_col3, header_col4 = st.columns([1, 3, 2, 2])
+        header_col1.write("**Type**")
+        header_col2.write("**Name**")
+        header_col3.write("**Size**")
+        header_col4.write("**Action**")
+        st.divider()
+
+        for item in display_items:
+            col1, col2, col3, col4 = st.columns([1, 3, 2, 2])
+            col1.write(item["Type"])
+            
+            if item["Type"] == "📁 Folder":
+                if col2.button(f"📂 {item['Name']}", key=f"f_{item['Full Path']}"):
+                    navigate_to(item["Full Path"])
+            else:
+                col2.write(f"📄 {item['Name']}")
+            
+            col3.write(item["Size"])
+            
+            if item["Type"] == "📄 File":
+                url = f"https://{S3_BUCKET}.s3.{AWS_REGION}.amazonaws.com/{item['Full Path']}"
+                if col4.button("🔗 URL", key=f"url_{item['Full Path']}"):
+                    st.info(f"URL: {url}")
+            else:
+                col4.write("")
+
+        # --- LOAD MORE BUTTON ---
+        if len(all_items) > st.session_state.items_limit:
+            if st.button(f"⬇️ Load More ({len(all_items) - st.session_state.items_limit} more items)"):
+                load_more()
+                st.rerun()
     else:
-        try:
-            # Reset file pointer and compute file size
+        st.info("This directory is empty.")
+
+except Exception as e:
+    st.error(f"Error accessing S3: {e}")
+
+# --- UPLOAD SECTION ---
+st.markdown("---")
+st.subheader("📤 Upload New File")
+
+with st.expander("Click to expand upload tool"):
+    uploaded_file = st.file_uploader("Choose a file")
+    
+    suggested_path = st.session_state.current_path
+    if suggested_path and not suggested_path.endswith("/"):
+        suggested_path += "/"
+    
+    filename = uploaded_file.name if uploaded_file else ""
+    target_key = st.text_input("S3 object key (destination path)", value=f"{suggested_path}{filename}")
+    public = st.checkbox("Make object publicly readable")
+
+    if st.button("Upload to S3"):
+        if uploaded_file is not None and target_key:
             try:
-                uploaded_file.seek(0, os.SEEK_END)
-                file_size = uploaded_file.tell()
-                uploaded_file.seek(0)
-            except Exception:
-                # fallback: read buffer length
-                buf = uploaded_file.getbuffer()
-                file_size = len(buf)
-                uploaded_file.seek(0)
+                content_type, _ = mimetypes.guess_type(target_key)
+                if not content_type:
+                    content_type, _ = mimetypes.guess_type(uploaded_file.name)
+                
+                extra_args = {"ContentType": content_type} if content_type else {}
+                if public:
+                    extra_args["ACL"] = "public-read"
 
-            # Detect content type
-            content_type, _ = mimetypes.guess_type(key)
-            if not content_type:
-                # fallback to the file's underlying name
-                content_type, _ = mimetypes.guess_type(uploaded_file.name)
-            extra_args = {}
-            if content_type:
-                extra_args["ContentType"] = content_type
-            if public:
-                extra_args["ACL"] = "public-read"
-
-            # Create boto3 session and client
-            session = boto3.Session(region_name=AWS_REGION)
-            s3_client = session.client("s3")
-
-            # Progress helper
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-
-            class ProgressPercentage:
-                def __init__(self, size, progress_bar, status_text):
-                    self._size = float(size) if size else 1.0
-                    self._seen = 0
-                    self._progress_bar = progress_bar
-                    self._status_text = status_text
-
-                def __call__(self, bytes_amount):
-                    self._seen += bytes_amount
-                    pct = int((self._seen / self._size) * 100)
-                    pct = min(100, max(0, pct))
-                    try:
-                        self._progress_bar.progress(pct)
-                        self._status_text.text(f"Uploaded {self._seen} / {int(self._size)} bytes ({pct}%)")
-                    except Exception:
-                        pass
-
-            callback = ProgressPercentage(file_size, progress_bar, status_text)
-
-            # Ensure file pointer at start
-            try:
-                uploaded_file.seek(0)
-            except Exception:
-                pass
-
-            # Use the boto3 client's upload_fileobj (more compatible than S3Transfer.upload_fileobj)
-            s3_client.upload_fileobj(
-                Fileobj=uploaded_file,
-                Bucket=S3_BUCKET,
-                Key=key,
-                ExtraArgs=extra_args or None,
-                Callback=callback,
-            )
-
-            # Success
-            progress_bar.progress(100)
-            status_text.text("Upload complete")
-
-            s3_url = f"s3://{S3_BUCKET}/{key}"
-            http_url = f"https://{S3_BUCKET}.s3.{AWS_REGION}.amazonaws.com/{key}"
-            st.success("File uploaded to S3")
-            st.write("S3 URI:", s3_url)
-            st.write("HTTP URL:", http_url)
-
-            if public:
-                st.info("Object uploaded with public-read ACL. The HTTP URL should be accessible if bucket policy allows it.")
-
-        except Exception as e:
-            st.error(f"Upload failed: {e}")
-            raise
+                with st.spinner("Uploading..."):
+                    s3_client.upload_fileobj(uploaded_file, S3_BUCKET, target_key, ExtraArgs=extra_args)
+                st.success(f"Uploaded to {target_key}")
+                st.rerun()
+            except Exception as e:
+                st.error(f"Upload failed: {e}")
+        else:
+            st.warning("Please select a file and provide a key.")
