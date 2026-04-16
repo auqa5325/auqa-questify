@@ -35,7 +35,10 @@ client = OpenSearch(
     http_auth=awsauth,
     use_ssl=True,
     verify_certs=True,
-    connection_class=RequestsHttpConnection
+    connection_class=RequestsHttpConnection,
+    timeout=60,
+    max_retries=3,
+    retry_on_timeout=True,
 )
 
 s3 = boto3.client("s3", region_name=region)

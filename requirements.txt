@@ -1,4 +1,5 @@
-boto3
+boto3>=1.36.0
+botocore>=1.36.0
 streamlit
 opensearch-py
 pandas
@@ -11,3 +12,4 @@ fpdf
 docx
 weasyprint 
 jinja2
+playwright

@@ -5,7 +5,7 @@ import streamlit as st
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
 from dotenv import load_dotenv
-from bedrockModels import count_tokens, build_request
+from bedrockModels import count_tokens, converse_stream_call
 
 # ----------------------------------------------------------------------------
 # AUQA - Streamlit Question / Answer / Summarization App
@@ -60,7 +60,10 @@ client = OpenSearch(
     http_auth=awsauth,
     use_ssl=True,
     verify_certs=True,
-    connection_class=RequestsHttpConnection
+    connection_class=RequestsHttpConnection,
+    timeout=60,
+    max_retries=3,
+    retry_on_timeout=True,
 )
 
 bedrock = session.client("bedrock-runtime", region_name=region)
@@ -277,27 +280,21 @@ if st.button("Generate"):
             st.warning(f"⚠️ Prompt truncated to fit {model_config['max_tokens']} tokens.")
 
         model_id = model_config["id"]
-        # For amazon.nova family use converse API (returns structured output), else use invoke_model
-        if model_id.startswith("amazon.nova"):
-            conversation = [{"role": "user", "content": [{"text": prompt}]}]
-            resp = bedrock.converse(modelId=model_id, messages=conversation,
-                                     inferenceConfig={"maxTokens": max_gen_len, "temperature": 0.0, "topP": 0.9})
-            generated_text = resp["output"]["message"]["content"][0]["text"]
-            usage = resp.get("usage", {})
-        else:
-            body = build_request(model_id, selected_model, prompt, max_gen_len)
-            resp = bedrock.invoke_model(modelId=model_id, body=json.dumps(body))
-            model_response = json.loads(resp["body"].read())
-            usage = model_response.get("usage", {})
+        stream_preview = st.empty()
 
-            if "anthropic" in model_id or "claude" in selected_model.lower():
-                generated_text = model_response["content"][0]["text"]
-            elif "llama" in model_id:
-                generated_text = model_response.get("generation") or str(model_response)
-            elif "mistral" in model_id:
-                generated_text = model_response.get("outputs", [{"text": str(model_response)}])[0].get("text")
-            else:
-                generated_text = str(model_response)
+        def update_stream_preview(_delta_text: str, full_text: str):
+            stream_preview.text_area("Streaming response", full_text, height=260)
+
+        generated_text, stream_meta = converse_stream_call(
+            bedrock,
+            model_id=model_id,
+            user_message=prompt,
+            max_tokens=max_gen_len,
+            temperature=0.0,
+            top_p=0.9,
+            on_text_delta=update_stream_preview,
+        )
+        usage = stream_meta.get("usage", {})
 
         # --- Show output ---
         st.subheader("Generated Output")

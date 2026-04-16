@@ -1,5 +1,5 @@
 import json
-from typing import Tuple, Dict, Any, Optional
+from typing import Tuple, Dict, Any, Optional, Callable, Iterator
 import boto3
 try:
     import tiktoken
@@ -88,6 +88,105 @@ def converse_call(client, model_id: str, user_message: str, max_tokens: int = 51
 
     except Exception as e:
         raise RuntimeError(f"ERROR: Can't invoke '{model_id}'. Reason: {e}") from e
+
+
+def converse_stream_call(
+    client,
+    model_id: str,
+    user_message: str,
+    max_tokens: int = 512,
+    temperature: float = 0.5,
+    top_p: float = 0.9,
+    on_text_delta: Optional[Callable[[str, str], None]] = None,
+) -> Tuple[str, Dict[str, Any]]:
+    """Call Bedrock `converse_stream` and return (response_text, metadata).
+
+    `on_text_delta(delta_text, full_text)` is called for each streamed text delta.
+    """
+    conversation = [
+        {"role": "user", "content": [{"text": user_message}]}
+    ]
+
+    text_chunks = []
+    usage: Dict[str, Any] = {}
+    metrics: Dict[str, Any] = {}
+    stop_reason: Optional[str] = None
+
+    try:
+        resp = client.converse_stream(
+            modelId=model_id,
+            messages=conversation,
+            inferenceConfig={"maxTokens": max_tokens, "temperature": temperature, "topP": top_p},
+        )
+
+        for event in resp["stream"]:
+            if "contentBlockDelta" in event:
+                delta = event["contentBlockDelta"].get("delta", {})
+                text = delta.get("text")
+                if text:
+                    text_chunks.append(text)
+                    if on_text_delta:
+                        on_text_delta(text, "".join(text_chunks))
+            elif "messageStop" in event:
+                stop_reason = event["messageStop"].get("stopReason")
+            elif "metadata" in event:
+                metadata = event["metadata"]
+                usage = metadata.get("usage", {})
+                metrics = metadata.get("metrics", {})
+
+        return "".join(text_chunks), {
+            "usage": usage,
+            "metrics": metrics,
+            "stopReason": stop_reason,
+        }
+
+    except Exception as e:
+        raise RuntimeError(f"ERROR: Can't stream invoke '{model_id}'. Reason: {e}") from e
+
+
+def converse_stream_text(
+    client,
+    model_id: str,
+    user_message: str,
+    max_tokens: int = 512,
+    temperature: float = 0.5,
+    top_p: float = 0.9,
+    metadata_out: Optional[Dict[str, Any]] = None,
+) -> Iterator[str]:
+    """Yield streamed text chunks from Bedrock `converse_stream`.
+
+    If `metadata_out` is provided, it is updated in-place with `usage`, `metrics`,
+    and `stopReason` once those events arrive.
+    """
+    conversation = [
+        {"role": "user", "content": [{"text": user_message}]}
+    ]
+
+    if metadata_out is None:
+        metadata_out = {}
+
+    try:
+        resp = client.converse_stream(
+            modelId=model_id,
+            messages=conversation,
+            inferenceConfig={"maxTokens": max_tokens, "temperature": temperature, "topP": top_p},
+        )
+
+        for event in resp["stream"]:
+            if "contentBlockDelta" in event:
+                delta = event["contentBlockDelta"].get("delta", {})
+                text = delta.get("text")
+                if text:
+                    yield text
+            elif "messageStop" in event:
+                metadata_out["stopReason"] = event["messageStop"].get("stopReason")
+            elif "metadata" in event:
+                metadata = event["metadata"]
+                metadata_out["usage"] = metadata.get("usage", {})
+                metadata_out["metrics"] = metadata.get("metrics", {})
+
+    except Exception as e:
+        raise RuntimeError(f"ERROR: Can't stream invoke '{model_id}'. Reason: {e}") from e
 
 
 # ------------------ Document understanding helpers ------------------
@@ -200,5 +299,3 @@ def converse_with_document_from_s3(
 
     except Exception as e:
         raise RuntimeError(f"ERROR: Can't fetch document from s3://{bucket}/{key} or invoke model. Reason: {e}") from e
-
-

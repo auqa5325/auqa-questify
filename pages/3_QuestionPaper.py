@@ -4,7 +4,7 @@ import json
 import pathlib
 from opensearchpy import OpenSearch, RequestsHttpConnection
 from requests_aws4auth import AWS4Auth
-from bedrockModels import build_request, count_tokens
+from bedrockModels import count_tokens, converse_stream_call, converse_stream_text
 import boto3
 import pandas as pd
 import streamlit as st
@@ -188,12 +188,14 @@ RULES:
                                          .replace("{FULL_TEXT}", full_text)
 
             if model_config:
-                body = build_request(model_config["id"], selected_model, parse_prompt, 4096)
-                resp = bedrock.invoke_model(modelId=model_config["id"], body=json.dumps(body))
-                model_response = json.loads(resp["body"].read())
-                generated_text = (model_response.get("outputs", [{}])[0].get("text") or
-                                  model_response.get("content", [{}])[0].get("text") or
-                                  str(model_response))
+                generated_text, _ = converse_stream_call(
+                    bedrock,
+                    model_id=model_config["id"],
+                    user_message=parse_prompt,
+                    max_tokens=4096,
+                    temperature=0.0,
+                    top_p=0.9,
+                )
                 generated_text = clean_json_output(generated_text)
 
                 try:
@@ -363,7 +365,7 @@ if "qn_matrix" in st.session_state and not st.session_state.qn_matrix.empty:
             "BL": st.column_config.SelectboxColumn("BL", options=bl_options),
             "Unit": st.column_config.SelectboxColumn("Unit", options=selected_units if selected_units else unit_values),
         },
-        use_container_width=True,
+        width="stretch",
     )
     st.session_state.qn_matrix = edited.copy()
     if(1==2):
@@ -660,31 +662,22 @@ if st.button("GENERATE QUESTION PAPER"):
             context=context_text
         )
 
-        # --- Call model using your provided logic (amazon.nova vs invoke_model)
         model_id = model_config["id"]
-        #st.write(f"Calling model: {model_id} ...")
-        if model_id.startswith("amazon.nova"):
-            conversation = [{"role": "user", "content": [{"text": prompt_filled}]}]
-            resp = bedrock.converse(modelId=model_id, messages=conversation,
-                                     inferenceConfig={"maxTokens": max_gen_len, "temperature": temperature, "topP": 0.9})
-            generated_text = resp["output"]["message"]["content"][0]["text"]
-            usage = resp.get("usage", {})
-        else:
-            body = build_request(model_id, selected_model, prompt_filled, max_gen_len)
-            resp = bedrock.invoke_model(modelId=model_id, body=json.dumps(body))
-            model_response = json.loads(resp["body"].read())
-            usage = model_response.get("usage", {})
-
-            # model-specific extraction
-            if "anthropic" in model_id or "claude" in selected_model.lower():
-                generated_text = model_response["content"][0]["text"]
-            elif "llama" in model_id:
-                generated_text = model_response.get("generation") or str(model_response)
-            elif "mistral" in model_id:
-                generated_text = model_response.get("outputs", [{"text": str(model_response)}])[0].get("text")
-            else:
-                # generic fallback
-                generated_text = str(model_response)
+        stream_meta = {}
+        with st.container():
+            st.caption(f"Streaming model output for Unit {unit}")
+            generated_text = st.write_stream(
+                converse_stream_text(
+                    bedrock,
+                    model_id=model_id,
+                    user_message=prompt_filled,
+                    max_tokens=max_gen_len,
+                    temperature=temperature,
+                    top_p=0.9,
+                    metadata_out=stream_meta,
+                )
+            )
+        usage = stream_meta.get("usage", {})
 
         generated_text = clean_json_output(generated_text)
 
@@ -783,7 +776,7 @@ if "generated_qns" in st.session_state and st.session_state.generated_qns:
     else:
         filtered_df = df_out
 
-    st.dataframe(filtered_df, use_container_width=True, height=600)
+    st.dataframe(filtered_df, width="stretch", height=600)
     st.write(f"Showing {len(filtered_df)} of {len(df_out)} total questions")
 
 
